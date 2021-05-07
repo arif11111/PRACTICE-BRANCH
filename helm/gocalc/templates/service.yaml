@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-{{ .Values.service.name }}
+  namespace: {{ .Values.namespace }}
+  labels:
+    release: {{ .Values.release.type }}
+    helm.sh/chart: {{ include "gocalc.chart" . }}
+    instance: {{ .Release.Name }}
+    managed-by: {{ .Release.Service }}
+spec:
+  selector:
+    release: {{ .Values.release.type }}
+    app: {{ .Values.deployment.name }}
+  type: {{ .Values.service.type }}
+  ports:
+    - port: {{ .Values.service.port }}
+      targetPort: {{ .Values.service.targetPort }}
+      nodePort: {{.Values.service.nodePort}}
+      protocol: TCP
+      name: http

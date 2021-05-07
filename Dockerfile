@@ -7,9 +7,8 @@ ENV GO111MODULE=on \
 
 WORKDIR /app
 
-COPY . .
+COPY  ./src .
 
-RUN  go mod init vendor/github.com/gorilla/mux
 
 RUN go mod download github.com/gorilla/mux
 

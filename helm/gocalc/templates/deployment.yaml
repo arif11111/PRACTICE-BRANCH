@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.deployment.name }}-{{ .Release.Name }}
+  namespace: {{ .Values.namespace }}
+  labels:
+    release: {{ .Values.release.type }}
+    app: {{ .Values.deployment.name }}
+    
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      release: {{ .Values.release.type }}
+      app: {{ .Values.deployment.name }}
+  template:
+    metadata:
+      labels:
+        release: {{ .Values.release.type }}
+        app: {{ .Values.deployment.name }}
+    spec:
+      containers:
+        - name: {{ .Values.deployment.name }}
+          image: {{ .Values.deployment.image }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.deployment.port }}
+              protocol: TCP
+          livenessProbe:
+            tcpSocket:
+              port: {{ .Values.deployment.port }}
+            initialDelaySeconds: 15
+            periodSeconds: 20
+          readinessProbe:
+            tcpSocket:
+              port: {{ .Values.deployment.port }}
+            initialDelaySeconds: 10
+            periodSeconds: 5
