@@ -117,8 +117,6 @@ pipeline {
                     echo "Deploying application ${IMAGE_NAME} to ${namespace} namespace"
                     createNamespace (namespace)
 
-                    // Remove release if exists
-                    helmDelete (namespace, "${IMAGE_NAME}")
 
                     // Deploy with helm
                     echo "Deploying"
@@ -135,8 +133,6 @@ pipeline {
                     echo "Deploying application ${IMAGE_NAME} to ${namespace} namespace"
                     createNamespace (namespace)
 
-                    // Remove release if exists
-                    helmDelete (namespace, "${IMAGE_NAME}")
 
                     // Deploy with helm
                     echo "Deploying"
