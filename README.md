@@ -21,5 +21,14 @@ We have make use of the following tools for this process - </br>
 * Helm charts contains three values.yaml file - `values-dev.yaml`, `values-stag.yaml` and `values-prod.yaml` which differs according to their particular namespaces.
 
 ### DEV Namespace
+* Kubernetes objects deployed 
+
+<img width="630" alt="Capture" src="https://user-images.githubusercontent.com/33144027/117549944-f6da9f00-b05a-11eb-82ee-200c2deefd48.PNG">
+
+* Application endpoint IP address 
+<img width="630" alt="Capture" src="https://user-images.githubusercontent.com/33144027/117550135-2ccc5300-b05c-11eb-9868-514d9b3057f0.PNG">
+
+* Sample inputs for the application 
+<img width="630" alt="Capture" src="https://user-images.githubusercontent.com/33144027/117550138-335aca80-b05c-11eb-93c7-621019e28276.PNG">
 
 
