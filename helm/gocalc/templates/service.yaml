@@ -5,13 +5,11 @@ metadata:
   namespace: {{ .Values.namespace }}
   labels:
     release: {{ .Values.release.type }}
-    helm.sh/chart: {{ include "gocalc.chart" . }}
-    instance: {{ .Release.Name }}
-    managed-by: {{ .Release.Service }}
+    app: {{ .Release.Name }}
 spec:
   selector:
     release: {{ .Values.release.type }}
-    app: {{ .Values.deployment.name }}
+    app: {{ .Release.Name }}
   type: {{ .Values.service.type }}
   ports:
     - port: {{ .Values.service.port }}
