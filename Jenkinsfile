@@ -1,25 +1,21 @@
-def createNamespace (namespace) {
-        echo "Creating namespace ${namespace} if needed"
+    //function to retrieve ip of the application deployed
+def getnodehost (namespace, servicename) {
 
-        sh "[ ! -z \"\$(kubectl get ns ${namespace} -o name 2>/dev/null)\" ] || kubectl create ns ${namespace}"
-   }
-    
-    def helmInstall (namespace, release) {
-    
 	script {
-        release = "${release}-${namespace}"
-        echo "Installing ${release} in ${namespace}"
-        sh """
-            helm upgrade --install --namespace ${namespace} ${release} \
-             -f ./helm/gocalc/values-${namespace}.yaml                   \
-                 ./helm/gocalc
+		sh """
+            export NODE_PORT="\$(kubectl get --namespace ${namespace} -o jsonpath="{.spec.ports[0].nodePort}" services ${servicename})"
         """
-        sh "sleep 5"
+        sh """ 
+            export NODE_IP="\$(kubectl get nodes --namespace ${namespace} -o jsonpath="{.items[0].status.addresses[0].address}")"
+        """
+        host_ip = "http://$NODE_IP:$NODE_PORT/status"		    
 	    }
+	return "$host_ip"
     }
-    
-    def runcurl(ip_host) {
-	
+
+// function to test the particular application status
+    def runcurl (ip_host) {
+
 	    script{
             repsone=sh(script:"curl -k -s -X GET --url http://$ip_host")
             
@@ -33,6 +29,32 @@ def createNamespace (namespace) {
     }
 
 
+// function to create the namespace
+  def createNamespace (namespace) {
+        
+        echo "Creating namespace ${namespace} if needed"
+
+        sh "[ ! -z \"\$(kubectl get ns ${namespace} -o name 2>/dev/null)\" ] || kubectl create ns ${namespace}"
+   }
+    
+
+//function to install or upgrade the application according to the namespace and helm release
+    def helmInstall (namespace, release) {
+        
+	script {
+        release = "${release}-${namespace}"
+        echo "Installing ${release} in ${namespace}"
+        sh """
+            helm upgrade --install --namespace ${namespace} ${release} \
+             -f ./helm/gocalc/values-${namespace}.yaml                   \
+                 ./helm/gocalc
+        """
+        sh "sleep 5"
+	    }
+    }
+    
+
+
     
 pipeline {
     
@@ -42,11 +64,10 @@ pipeline {
     }
     
     environment {
-	DOCKER_REG = 'a5edevopstuts'
+	DOCKER_REG = 'a5edevopstuts' 
         IMAGE_NAME = 'gocalc'  
-        TEST_LOCAL_PORT = 8081 //local port to test docker image locally 
-        ID = "${DOCKER_REG}-${IMAGE_NAME}"  // container ID for running the docker image locally
-        branch = GIT_BRANCH    
+        TEST_LOCAL_PORT = '8081' //local port to test docker image locally 
+        ID = "${DOCKER_REG}-${IMAGE_NAME}"  // container ID for running the docker image locally    
     }
     
     agent { node { label 'master' } }
@@ -60,7 +81,6 @@ pipeline {
                 }
                
             }
-        }
         
         stage('Build'){
             steps{
@@ -87,7 +107,7 @@ pipeline {
 		//accessing the status of the application
                 script{
                     host_ip = "localhost:${TEST_LOCAL_PORT}/status"
-                    runcurl(host_ip)
+                    runcurl (host_ip)
                 }
             }
         }
@@ -118,25 +138,27 @@ pipeline {
                     createNamespace (namespace)
 
                     echo "Deploying application ${IMAGE_NAME} to ${namespace} namespace"
-                    helmInstall(namespace, "${IMAGE_NAME}")
+                    helmInstall (namespace, "${IMAGE_NAME}")
                 }
             }
         }
         
-        stage('Dev Env Test')
+        
+	stage('Development Env Test')
         {
             steps{
                 script{
 		    echo "Accessing the status of application in ${namespace} namespace"
+		            
+                    servicename = "${IMAGE_NAME}-${namespace}-service"
+                    
+                    host_ip = getnodehost (namespace, servicename)
 
-                    sh "export NODE_PORT=$(kubectl get --namespace ${namespace} -o jsonpath="{.spec.ports[0].nodePort}" services gocalc-dev-service)"
-                    sh "export NODE_IP=$(kubectl get nodes --namespace ${namespace} -o jsonpath="{.items[0].status.addresses[0].address}")"
-                    host_ip = "http://$NODE_IP:$NODE_PORT/status"
                     runcurl(host_ip)
                     }
             }
-        }    
-        
+        }
+
         stage('Deploy to Staging') {
             steps {
                 script {
@@ -153,15 +175,15 @@ pipeline {
         
         
         
-        stage('Staging Env Test')
+        stage('Staging Env test')
         {
             steps{
                 script{
 		    echo "Accessing the status of application in ${namespace} namespace"
-
-                    sh "export NODE_PORT=$(kubectl get --namespace ${namespace} -o jsonpath="{.spec.ports[0].nodePort}" services ${IMAGE_NAME}-${namespace})"
-                    sh "export NODE_IP=$(kubectl get nodes --namespace ${namespace} -o jsonpath="{.items[0].status.addresses[0].address}")"
-                    host_ip = "http://$NODE_IP:$NODE_PORT/status"
+		            
+                    servicename = "${IMAGE_NAME}-${namespace}-service"
+                    
+                    host_ip = getnodehost (namespace, servicename)
 
                     runcurl(host_ip)
                     }
@@ -171,29 +193,30 @@ pipeline {
         
         
         stage('Deploy to Prod') {
-        input 'Proceed and deploy to Production?'    
-
             steps {
-                namespace = 'production'
+                input 'Proceed and deploy to Production?' 
+                
+                script{
+                    namespace = 'production'
 
-                echo "Creating namespace ${namespace}"
-                createNamespace (namespace)
+                    echo "Creating namespace ${namespace}"
+                    createNamespace (namespace)
                 
-                echo "Deploying application ${IMAGE_NAME} to ${namespace} namespace"
-                helmInstall(namespace, "${IMAGE_NAME}")
-                
+                    echo "Deploying application ${IMAGE_NAME} to ${namespace} namespace"
+                    helmInstall(namespace, "${IMAGE_NAME}")
+                }
             }
         }
         
-        stage('Prod Env Test')
+        stage('Prod Env test')
         {
             steps{
                 script{
 		    echo "Accessing the status of application in ${namespace} namespace"
-		    
-                    sh "export NODE_PORT=$(kubectl get --namespace ${namespace} -o jsonpath="{.spec.ports[0].nodePort}" services ${IMAGE_NAME}-${namespace})"
-                    sh "export NODE_IP=$(kubectl get nodes --namespace ${namespace} -o jsonpath="{.items[0].status.addresses[0].address}")""
-                    host_ip = "http://$NODE_IP:$NODE_PORT/status"
+		            
+                    servicename = "${IMAGE_NAME}-${namespace}-service"
+                    
+                    host_ip = getnodehost ("${namespace}", servicename)
 
                     runcurl(host_ip)
                     }
