@@ -129,7 +129,7 @@ pipeline {
                 script{
 		    echo "Accessing the status of application in ${namespace} namespace"
 
-                    sh "export NODE_PORT=$(kubectl get --namespace ${namespace} -o jsonpath="{.spec.ports[0].nodePort}" services ${IMAGE_NAME}-${namespace})"
+                    sh "export NODE_PORT=$(kubectl get --namespace ${namespace} -o jsonpath="{.spec.ports[0].nodePort}" services gocalc-dev-service)"
                     sh "export NODE_IP=$(kubectl get nodes --namespace ${namespace} -o jsonpath="{.items[0].status.addresses[0].address}")"
                     host_ip = "http://$NODE_IP:$NODE_PORT/status"
                     runcurl(host_ip)
