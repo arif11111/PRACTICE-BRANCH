@@ -42,9 +42,9 @@ Apply terraform plan:
 $ terraform apply
 ```
 
-Terraform modules will create
 <img width="630" alt="Capture" src="https://user-images.githubusercontent.com/33144027/117570436-baa15000-b0e7-11eb-8455-c07cc3b83c37.PNG">
 
+Terraform modules will create
 ```
 -   VPC
 -   Subnets
@@ -80,7 +80,7 @@ $ export KUBECONFIG="${PWD}/kubeconfig_my-cluster"`
 * Sample inputs for the application 
 <img width="630" alt="Capture" src="https://user-images.githubusercontent.com/33144027/117550138-335aca80-b05c-11eb-93c7-621019e28276.PNG">
 
-### Stag Namespace
+### STAG Namespace
 * Kubernetes objects deployed 
 <img width="630" alt="Capture" src="https://user-images.githubusercontent.com/33144027/117570078-81b4ab80-b0e6-11eb-9b34-8c83a3c885bb.PNG">
 
@@ -91,7 +91,7 @@ $ export KUBECONFIG="${PWD}/kubeconfig_my-cluster"`
 <img width="630" alt="Capture" src="https://user-images.githubusercontent.com/33144027/117570122-9e50e380-b0e6-11eb-82b1-4320dcef559d.PNG">
 
 
-### Prod Namespace
+### PROD Namespace
 * Kubernetes objects deployed 
 <img width="630" alt="Capture" src="https://user-images.githubusercontent.com/33144027/117570277-0c95a600-b0e7-11eb-8a64-a801c1c39416.PNG">
 
