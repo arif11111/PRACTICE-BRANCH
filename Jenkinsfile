@@ -1,5 +1,5 @@
     //function to retrieve ip of the application deployed
-def getnodehost (namespace, servicename) {
+    def getnodehost (namespace, servicename) {
 
 	script {
 		sh """
@@ -13,7 +13,7 @@ def getnodehost (namespace, servicename) {
 	return "$host_ip"
     }
 
-// function to test the particular application status
+   // function to test the particular application status
     def runcurl (ip_host) {
 
 	    script{
@@ -162,7 +162,7 @@ pipeline {
         stage('Deploy to Staging') {
             steps {
                 script {
-                    namespace = 'staging'
+                    namespace = 'stag'
 
                     echo "Creating namespace ${namespace}"
                     createNamespace(namespace)
@@ -197,7 +197,7 @@ pipeline {
                 input 'Proceed and deploy to Production?' 
                 
                 script{
-                    namespace = 'production'
+                    namespace = 'prod'
 
                     echo "Creating namespace ${namespace}"
                     createNamespace (namespace)
