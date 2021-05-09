@@ -43,6 +43,8 @@ $ terraform apply
 ```
 
 Terraform modules will create
+<img width="630" alt="Capture" src="https://user-images.githubusercontent.com/33144027/117570436-baa15000-b0e7-11eb-8455-c07cc3b83c37.PNG">
+
 ```
 -   VPC
 -   Subnets
@@ -59,9 +61,9 @@ Export the KUBECONFIG variable to the above kubeconfig file to access the cluste
 $ export KUBECONFIG="${PWD}/kubeconfig_my-cluster"`
 ````
 <h2> Jenkins CI/CD for deploying golang application </h2> 
-* The Jenkins pipeline basically builds the docker image through the Dockerfile provided in the Source Code and run a container locally to test the image wether it is accessible or not.</br>
-* Then, the Jenkins pushes the image `a5edevopstuts/gocalc` to the docker hub  repository. </br>
-* Jenkins then through the `KUBECONFIG` file access the kubernetes cluster and creates three namespaces - dev, stag and prod. </br>
+* The Jenkins pipeline basically builds the docker image through the Dockerfile provided in the Source Code and run a container locally to test the image wether it is     accessible or not.</br>
+* Then, the Jenkins pushes the image `a5edevopstuts/gocalc`  to the docker hub  repository. </br>
+* Jenkins then through the `kubeconfig_my-cluster` file access the kubernetes cluster and creates three namespaces - dev, stag and prod. </br>
 * Simultaneously, Jenkins install or upgrade the Helm chart into the particular namespaces. </br>
 * Helm charts contains three values.yaml file - `values-dev.yaml`, `values-stag.yaml` and `values-prod.yaml` which differs according to their particular namespaces.
 
