@@ -1,11 +1,11 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Values.deployment.name }}-{{ .Release.Name }}
+  name: {{ .Release.Name }}-{{ .Values.deployment.name }}
   namespace: {{ .Values.namespace }}
   labels:
     release: {{ .Values.release.type }}
-    app: {{ .Values.deployment.name }}
+    app: {{ .Release.Name }}
     
 spec:
   {{- if not .Values.autoscaling.enabled }}
@@ -14,15 +14,15 @@ spec:
   selector:
     matchLabels:
       release: {{ .Values.release.type }}
-      app: {{ .Values.deployment.name }}
+      app: {{ .Release.Name }}
   template:
     metadata:
       labels:
         release: {{ .Values.release.type }}
-        app: {{ .Values.deployment.name }}
+        app: {{ .Release.Name }}
     spec:
       containers:
-        - name: {{ .Values.deployment.name }}
+        - name: {{ .Release.Name }}
           image: {{ .Values.deployment.image }}
           ports:
             - name: http
@@ -36,5 +36,6 @@ spec:
           readinessProbe:
             tcpSocket:
               port: {{ .Values.deployment.port }}
-            initialDelaySeconds: 10
-            periodSeconds: 5
+            initialDelaySeconds: 15
+            periodSeconds: 20
+     
